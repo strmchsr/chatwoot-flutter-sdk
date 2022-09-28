@@ -343,9 +343,11 @@ class _ChatwootChatState extends State<ChatwootChat> {
     types.PreviewData previewData,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
+    if(index == -1) return;
+
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = updatedMessage;
       });
@@ -356,12 +358,13 @@ class _ChatwootChatState extends State<ChatwootChat> {
     types.Message message,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
+    if(index == -1) return;
 
     if (_messages[index].status == types.Status.seen) {
       return;
     }
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = message;
       });
@@ -372,8 +375,9 @@ class _ChatwootChatState extends State<ChatwootChat> {
     types.Message message,
   ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
+    if(index == -1) return;
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _messages[index] = message;
       });

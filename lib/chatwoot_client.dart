@@ -159,8 +159,7 @@ class ChatwootClient {
 
   /// Clears all persisted chatwoot data on device.
   static Future<void> clearAllData() async {
-    providerContainerMap.putIfAbsent("all", () => ProviderContainer());
-    final container = providerContainerMap["all"]!;
+    final container = ProviderContainer();
     final params = ChatwootParameters(
         isPersistenceEnabled: true,
         baseUrl: "",
