@@ -97,13 +97,13 @@ class ChatwootRepositoryImpl extends ChatwootRepository {
       //refresh conversation
       final conversations = await clientService.getConversations();
       final persistedConversation =
-          localStorage.conversationDao.getConversation()!;
-      final refreshedConversation = conversations.firstWhere(
-          (element) => element.id == persistedConversation.id,
-          orElse: () =>
-              persistedConversation //highly unlikely orElse will be called but still added it just in case
-          );
-      localStorage.conversationDao.saveConversation(refreshedConversation);
+          localStorage.conversationDao.getConversation();
+      final refreshedConversation = conversations
+          .where((element) => element.id == persistedConversation?.id);
+      if (refreshedConversation.isNotEmpty) {
+        localStorage.conversationDao
+            .saveConversation(refreshedConversation.first);
+      }
     } on ChatwootClientException catch (e) {
       callbacks.onError?.call(e);
     }
@@ -153,19 +153,24 @@ class ChatwootRepositoryImpl extends ChatwootRepository {
       } else if (chatwootEvent.message?.event ==
           ChatwootEventMessageType.message_created) {
         print("here comes message: $event");
-        final message = chatwootEvent.message!.data!.getMessage();
-        localStorage.messagesDao.saveMessage(message);
-        if (message.isMine) {
-          callbacks.onMessageDelivered
-              ?.call(message, chatwootEvent.message!.data!.echoId!);
-        } else {
-          callbacks.onMessageReceived?.call(message);
+        final data = chatwootEvent.message?.data;
+        final message = data?.getMessage();
+        if (message != null) {
+          localStorage.messagesDao.saveMessage(message);
+          if (message.isMine) {
+            final echoId = data?.echoId;
+            if (echoId != null) {
+              callbacks.onMessageDelivered?.call(message, echoId);
+            }
+          } else {
+            callbacks.onMessageReceived?.call(message);
+          }
         }
       } else if (chatwootEvent.message?.event ==
           ChatwootEventMessageType.message_updated) {
         print("here comes the updated message: $event");
 
-        final message = chatwootEvent.message!.data!.getMessage();
+        final message = chatwootEvent.message?.data?.getMessage();
         localStorage.messagesDao.saveMessage(message);
 
         callbacks.onMessageUpdated?.call(message);
@@ -226,7 +231,7 @@ class ChatwootRepositoryImpl extends ChatwootRepository {
   @override
   void sendAction(ChatwootActionType action) {
     clientService.sendAction(
-        localStorage.contactDao.getContact()!.pubsubToken ?? "", action);
+        localStorage.contactDao.getContact()?.pubsubToken ?? "", action);
   }
 
   ///Publishes presence update to websocket channel at a 30 second interval

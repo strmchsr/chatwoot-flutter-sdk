@@ -31,75 +31,57 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-  }
-
-  _showChatwootDialog() {
-    ChatwootChatDialog.show(
-      context,
-      baseUrl: "https://app.chatwoot.com",
-      inboxIdentifier: "xxxxxxxxxxxxxxxxxxx",
-      title: "Chatwoot Support",
-      user: ChatwootUser(
-        identifier: "test@test.com",
-        name: "Tester test",
-        email: "test@test.com",
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChatwootChat(
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SizedBox.expand(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: _showChatwootDialog,
+                child: Text("Start Chat"),
+              ),
+              SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _clearAllData,
+                child: Text("Clear Data"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showChatwootDialog() {
+    ChatwootChatDialog.show(
+      context,
       baseUrl: "https://app.chatwoot.com",
-      inboxIdentifier: "xxxxxxxxxxxxxxxxxxx",
+      inboxIdentifier: "____________________",
+      title: "Testing Chat",
       user: ChatwootUser(
         identifier: "test1@test.com",
         name: "Tester test1",
         email: "test1@test.com",
       ),
-      appBar: AppBar(
-        title: Text(
-          "Chatwoot",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        leading: InkWell(
-          onTap: () => _showChatwootDialog(),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset("assets/chatwoot_logo.png"),
-          ),
-        ),
-        backgroundColor: Colors.white,
-      ),
-      onWelcome: () {
-        print("Welcome event received");
-      },
-      onPing: () {
-        print("Ping event received");
-      },
-      onConfirmedSubscription: () {
-        print("Confirmation event received");
-      },
-      onMessageDelivered: (_) {
-        print("Message delivered event received");
-      },
-      onMessageSent: (_) {
-        print("Message sent event received");
-      },
-      onConversationIsOffline: () {
-        print("Conversation is offline event received");
-      },
-      onConversationIsOnline: () {
-        print("Conversation is online event received");
-      },
-      onConversationStoppedTyping: () {
-        print("Conversation stopped typing event received");
-      },
-      onConversationStartedTyping: () {
-        print("Conversation started typing event received");
-      },
     );
+  }
+
+  Future _clearAllData() async {
+    await ChatwootClient.create(
+      baseUrl: "https://app.chatwoot.com",
+      inboxIdentifier: "____________________",
+    );
+    ChatwootClient.clearAllData().then((_) {
+      print("data cleared successfully!!!");
+    }).catchError((error) {
+      print(error);
+    });
   }
 }
